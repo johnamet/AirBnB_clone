@@ -1,6 +1,6 @@
 #!/usr/bin/python3
-"""The module contains one class, `Console`
-    This is to manage the objects of AirBnB project
+"""The module contains one class, `HBNBCommand`
+   This is to manage the objects of AirBnB project
 """
 from cmd import Cmd
 from models.base_model import BaseModel
@@ -15,57 +15,67 @@ class HBNBCommand(Cmd):
     prompt = "(hbnb) "
     
     def do_create(self, arg):
-        """Creates a new instance of BaseModel and saves it."""
+        """Creates a new instance of BaseModel and saves it.
 
+        Usage: create <class name>
+        Example: create BaseModel
+        """
         # a dictionary of classes
         classes_dict = {"BaseModel": BaseModel}
 
-        if arg is None or len(arg) == 0:
-                    print("** class name missing **")
-        else:     
+        if not arg:
+            print("** class name missing **")
+        else:
             try:
                 model = classes_dict[arg]()
                 model.save()
                 print("{}".format(model.id))
             except KeyError:
-                print("**class doesn't exist **")
+                print("** class doesn't exist **")
 
     def do_show(self, arg):
         """Prints the string representation of an
-            instance based on the class."""
-        
+            instance based on the class.
+
+        Usage: show <class name> <id>
+        Example: show BaseModel 1234-5678
+        """
         # a dictionary of classes
         classes_dict = {"BaseModel": BaseModel}
 
         args = arg.split(" ")
 
-        if len(arg) == 0 or arg is None:
+        if not arg:
             print("** class name missing **")
-        elif args[0] not in classes_dict.keys():
+        elif args[0] not in classes_dict:
             print("** class doesn't exist **")
-        elif len(args) == 1:
+        elif len(args) < 2:
             print("** instance id missing **")
         else:
             id = args[1]
             model = classes_dict[args[0]]
             key = "{}.{}".format(model.__name__, id)
             try:
-                    model = storage.all()[key]
-                    print(model)
+                model_instance = storage.all()[key]
+                print(model_instance)
             except KeyError:
-                    print("** no instance found **")
+                print("** no instance found **")
 
     def do_destroy(self, arg):
-        """Deletes an instance base on the name and id"""
+        """Deletes an instance based on the name and id.
+
+        Usage: destroy <class name> <id>
+        Example: destroy BaseModel 1234-5678
+        """
         classes_dict = {"BaseModel": BaseModel}
 
         args = arg.split(" ")
 
-        if len(arg) == 0 or arg is None:
+        if not arg:
             print("** class name missing **")
-        elif args[0] not in classes_dict.keys():
+        elif args[0] not in classes_dict:
             print("** class doesn't exist **")
-        elif len(args) == 1:
+        elif len(args) < 2:
             print("** instance id missing **")
         else:
             model = args[0]
@@ -73,52 +83,58 @@ class HBNBCommand(Cmd):
             model = classes_dict[model]
             key = "{}.{}".format(model.__name__, id)
             try:
-                    del storage.all()[key]
-                    storage.save()
+                del storage.all()[key]
+                storage.save()
             except KeyError:
-                    print("** no instance found **")
-    
+                print("** no instance found **")
+
     def do_all(self, line):
-        """Prints all string representation of all
+        """Prints all string representations of all
             instances based or not on the class.
+
+        Usage: all [class name]
+        Example: all BaseModel
         """
         classes_dict = {"BaseModel": BaseModel}
         all_obj = storage.all()
-        if len(line) == 0 or line is None:
+        if not line:
             cls_list = [str(value) for _, value in all_obj.items()]
             print(cls_list)
         else:
-            if line in classes_dict.keys():
+            if line in classes_dict:
                 cls_list = [str(value) if line in key else ''
-                        for key, value in all_obj.items()]
+                            for key, value in all_obj.items()]
                 print(cls_list)
             else:
                 print("** class doesn't exist **")
+
     def do_update(self, arg):
         """Updates an instance based on the class name and id
             by adding or updating attribute.
-            Usage: <class name> <id> <attribute name> "<attribute value>"
+
+        Usage: update <class name> <id> <attribute name> "<attribute value>"
+        Example: update BaseModel 1234-5678 name "John Doe"
         """        
         # a dictionary of classes
         classes_dict = {"BaseModel": BaseModel}
-        pattern = r'("[^"]+|\S+)'
+        pattern = r'("[^"]+"|\S+)'
         comps = re.findall(pattern, arg)
         args = [comp.strip('"') for comp in comps]
 
         # Check if the class name is missing
-        if len(args) == 0 or args is None:
+        if not args:
             print("** class name missing **")
         # check whether the class exists
-        elif args[0] not in classes_dict.keys():
+        elif args[0] not in classes_dict:
             print("** class doesn't exist **")
         # check whether the instance id is missing
-        elif len(args) == 1:
+        elif len(args) < 2:
             print("** instance id missing **")
         else:
             id = args[1]
             model_class = classes_dict[args[0]]
             if not model_class:
-                 print("** no instance found **")
+                print("** no instance found **")
             else:
                 key = "{}.{}".format(model_class.__name__, id)
 
