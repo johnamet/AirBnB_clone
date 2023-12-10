@@ -38,7 +38,7 @@ class HBNBCommand(Cmd):
             try:
                 model_class = self.classes_dict[arg.strip()]
                 model = model_class()
-                model.save()
+                storage.save()
                 print(model.id)
             except KeyError:
                 print("** class doesn't exist **")
@@ -85,10 +85,9 @@ class HBNBCommand(Cmd):
         else:
             model = args[0]
             id = args[1]
-            model = self.classes_dict[model]
-            key = "{}.{}".format(model.__name__, id)
+            key = "{}.{}".format(model, id)
             try:
-                del storage.all()[key]
+                storage.delete(storage.all()[key])
                 storage.save()
             except KeyError:
                 print("** no instance found **")
@@ -100,15 +99,18 @@ class HBNBCommand(Cmd):
         Usage: all [class name]
         Example: all BaseModel
         """
-        all_obj = storage.all()
+
         if not line:
-            cls_list = [str(value) for _, value in all_obj.items()]
-            print(cls_list)
+            cls_list = [str(value) for _, value in
+                        storage.all().items()]
+            print(list(set(cls_list)))
         else:
-            if line in self.classes_dict:
-                cls_list = [str(value) if line in key else ''
-                            for key, value in all_obj.items()]
-                print(cls_list)
+            if line in self.classes_dict.keys():
+                cls_list = []
+                for key, value in storage.all().items():
+                    if line in key:
+                        cls_list.append(str(value))
+                print(list(set(cls_list)))
             else:
                 print("** class doesn't exist **")
 
