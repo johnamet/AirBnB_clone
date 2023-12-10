@@ -1,18 +1,23 @@
 #!/usr/bin/python3
-"""City module"""
-
+"""A user class that inherits from BaseModel"""
 from models.base_model import BaseModel
 
 
 class City(BaseModel):
-    """City class to store city details"""
-    def __init__(self, state_id="", name=""):
-        super().__init__()
+    """User class to store users detail
+    Attributes:
+        state_id (str): The state is  (defaults to empty string)
+        name (str): The name of the city
+
+    Args:
+        state_id (str): The state is (defaults to empty string)
+        name (str): The name of the city
+        """
+
+    def __init__(self, state_id="", name="", **kwargs):
+        super().__init__(self)
         self.state_id = state_id
         self.name = name
 
     def to_dict(self):
-        city_dict = super().to_dict()
-        city_dict["state_id"] = self.state_id
-        city_dict["name"] = self.name
-        return city_dict
+        return super().to_dict()

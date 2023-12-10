@@ -22,7 +22,8 @@ class BaseModel:
                     # Convert string to datetime object
                     # based on the known format
                     setattr(self, key,
-                            datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f'))
+                            datetime.fromisoformat(value)
+                            )   
                 else:
                     setattr(self, key, value)
         else:

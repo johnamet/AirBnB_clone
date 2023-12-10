@@ -36,13 +36,12 @@ class HBNBCommand(Cmd):
             print("** class doesn't exist **")
         else:
             try:
-                model_class = self.classes_dict[arg]
+                model_class = self.classes_dict[arg.strip()]
                 model = model_class()
                 model.save()
                 print(model.id)
             except KeyError:
                 print("** class doesn't exist **")
-
 
     def do_show(self, arg):
         """Prints the string representation of an

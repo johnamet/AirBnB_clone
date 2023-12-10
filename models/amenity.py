@@ -5,12 +5,17 @@ from models.base_model import BaseModel
 
 
 class Amenity(BaseModel):
-    """Amenity class to store amenity details"""
-    def __init__(self, name=""):
-        super().__init__()
+    """Amenity class to store amenity details
+    Attributes:
+        name (str): name of amenity (defaults to empty str)
+
+    Args:
+        name (str): name of amenity (defaults to empty str)
+    """
+
+    def __init__(self,name="", **kwargs):
+        super().__init__(self)
         self.name = name
 
     def to_dict(self):
-        amenity_dict = super().to_dict()
-        amenity_dict["name"] = self.name
-        return amenity_dict
+        return super().to_dict()

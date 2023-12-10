@@ -20,7 +20,7 @@ class User(BaseModel):
         """
 
     def __init__(self, email=None, password=None,
-		first_name=None, last_name=None, **kwargs):
+                 first_name=None, last_name=None, **kwargs):
         super().__init__(self)
         self.email = email
         self.password = password
@@ -28,4 +28,4 @@ class User(BaseModel):
         self.last_name = last_name
 
     def to_dict(self):
-        return super().to_dict()
+        super().to_dict()

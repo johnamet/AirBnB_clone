@@ -8,6 +8,7 @@ from models.city import City
 from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
+import os
 
 
 class FileStorage:
@@ -18,13 +19,15 @@ class FileStorage:
         __objects (dict): store all objects by class id
     """
 
-    classes_dict = {"BaseModel": BaseModel, "User": User, "State": State,
-                    "City": City, "Amenity": Amenity,
+    classes_dict = {"BaseModel": BaseModel, "User": User,
+                    "State": State, "City": City,
+                    "Amenity": Amenity,
                     "Place": Place, "Review": Review}
 
     def __init__(self):
         """Initialize FileStorage with default attributes"""
-        self.__file_path = "files/store.json"
+        self.__dirs = "files"
+        self.__file_path = "{}/store.json".format(self.__dirs)
         self.__objects = {}
 
     def all(self):
@@ -51,6 +54,9 @@ class FileStorage:
                               for key, obj in self.__objects.items()}
         json_str = json.dumps(serialized_objects)
 
+        if not os.path.exists(self.__dirs):
+            os.makedirs(self.__dirs)
+
         with open(self.__file_path, mode="w", encoding="UTF8") as f:
             f.write(json_str)
 
@@ -62,7 +68,10 @@ class FileStorage:
                 if content:
                     serialized_objects = json.loads(content)
                     for key, value in serialized_objects.items():
-                        cls = value["__class__"]
-                        self.__objects[key] = self.classes_dict[cls](**value)
+                        if value == None or len(key) == 0 or len(value) == 0:
+                            pass
+                        else:
+                            cls = value["__class__"]
+                            self.__objects[key] = self.classes_dict[cls](**value)
         except FileNotFoundError:
             pass
