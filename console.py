@@ -1,11 +1,18 @@
 #!/usr/bin/python3
-"""The module contains one class, `Console`
-    This is to manage the objects of AirBnB project
+"""The module contains one class, `HBNBCommand`
+   This is to manage the objects of AirBnB project
 """
 from cmd import Cmd
 from models.base_model import BaseModel
 from models import storage
 import re
+from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
+
 
 class HBNBCommand(Cmd):
     """The console is to manage the
@@ -13,145 +20,169 @@ class HBNBCommand(Cmd):
     """
 
     prompt = "(hbnb) "
-    
+    classes_dict = {"BaseModel": BaseModel, "User": User, "State": State,
+                    "City": City, "Amenity": Amenity,
+                    "Place": Place, "Review": Review}
+
     def do_create(self, arg):
-        """Creates a new instance of BaseModel and saves it."""
+        """Creates a new instance of BaseModel and saves it.
 
-        # a dictionary of classes
-        classes_dict = {"BaseModel": BaseModel}
-
-        if arg is None or len(arg) == 0:
-                    print("** class name missing **")
-        else:     
+        Usage: create <class name>
+        Example: create BaseModel
+        """
+        if not arg:
+            print("** class name missing **")
+        elif arg not in self.classes_dict:
+            print("** class doesn't exist **")
+        else:
             try:
-                model = classes_dict[arg]()
+                model_class = self.classes_dict[arg]
+                model = model_class()
                 model.save()
-                print("{}".format(model.id))
+                print(model.id)
             except KeyError:
-                print("**class doesn't exist **")
+                print("** class doesn't exist **")
+
 
     def do_show(self, arg):
         """Prints the string representation of an
-            instance based on the class."""
-        
-        # a dictionary of classes
-        classes_dict = {"BaseModel": BaseModel}
+            instance based on the class.
 
+        Usage: show <class name> <id>
+        Example: show BaseModel 1234-5678
+        """
         args = arg.split(" ")
 
-        if len(arg) == 0 or arg is None:
+        if not arg:
             print("** class name missing **")
-        elif args[0] not in classes_dict.keys():
+        elif args[0] not in self.classes_dict:
             print("** class doesn't exist **")
-        elif len(args) == 1:
+        elif len(args) < 2:
             print("** instance id missing **")
         else:
             id = args[1]
-            model = classes_dict[args[0]]
+            model = self.classes_dict[args[0]]
             key = "{}.{}".format(model.__name__, id)
             try:
-                    model = storage.all()[key]
-                    print(model)
+                model_instance = storage.all()[key]
+                print(model_instance)
             except KeyError:
-                    print("** no instance found **")
+                print("** no instance found **")
 
     def do_destroy(self, arg):
-        """Deletes an instance base on the name and id"""
-        classes_dict = {"BaseModel": BaseModel}
+        """Deletes an instance based on the name and id.
 
+        Usage: destroy <class name> <id>
+        Example: destroy BaseModel 1234-5678
+        """
         args = arg.split(" ")
 
-        if len(arg) == 0 or arg is None:
+        if not arg:
             print("** class name missing **")
-        elif args[0] not in classes_dict.keys():
+        elif args[0] not in self.classes_dict:
             print("** class doesn't exist **")
-        elif len(args) == 1:
+        elif len(args) < 2:
             print("** instance id missing **")
         else:
             model = args[0]
             id = args[1]
-            model = classes_dict[model]
+            model = self.classes_dict[model]
             key = "{}.{}".format(model.__name__, id)
             try:
-                    del storage.all()[key]
-                    storage.save()
+                del storage.all()[key]
+                storage.save()
             except KeyError:
-                    print("** no instance found **")
-    
+                print("** no instance found **")
+
     def do_all(self, line):
-        """Prints all string representation of all
+        """Prints all string representations of all
             instances based or not on the class.
+
+        Usage: all [class name]
+        Example: all BaseModel
         """
-        classes_dict = {"BaseModel": BaseModel}
         all_obj = storage.all()
-        if len(line) == 0 or line is None:
+        if not line:
             cls_list = [str(value) for _, value in all_obj.items()]
             print(cls_list)
         else:
-            if line in classes_dict.keys():
+            if line in self.classes_dict:
                 cls_list = [str(value) if line in key else ''
-                        for key, value in all_obj.items()]
+                            for key, value in all_obj.items()]
                 print(cls_list)
             else:
                 print("** class doesn't exist **")
+
     def do_update(self, arg):
         """Updates an instance based on the class name and id
             by adding or updating attribute.
-            Usage: <class name> <id> <attribute name> "<attribute value>"
-        """        
-        # a dictionary of classes
-        classes_dict = {"BaseModel": BaseModel}
-        pattern = r'("[^"]+|\S+)'
+
+        Usage: update <class name> <id> <attribute name> "<attribute value>"
+        Example: update BaseModel 1234-5678 name "John Doe"
+        """
+
+        pattern = r'("[^"]+"|\S+)'
         comps = re.findall(pattern, arg)
         args = [comp.strip('"') for comp in comps]
 
         # Check if the class name is missing
-        if len(args) == 0 or args is None:
+        if not args:
             print("** class name missing **")
         # check whether the class exists
-        elif args[0] not in classes_dict.keys():
+        elif args[0] not in self.classes_dict:
             print("** class doesn't exist **")
         # check whether the instance id is missing
-        elif len(args) == 1:
+        elif len(args) < 2:
             print("** instance id missing **")
         else:
             id = args[1]
-            model_class = classes_dict[args[0]]
+            model_class = self.classes_dict[args[0]]
             if not model_class:
-                 print("** no instance found **")
+                print("** no instance found **")
             else:
                 key = "{}.{}".format(model_class.__name__, id)
 
                 try:
-                        if len(args) < 3:
-                            print("** attribute name missing **")
+                    if len(args) < 3:
+                        print("** attribute name missing **")
+                    else:
+                        attr = args[2]
+                        if len(args) < 4:
+                            print("** value missing **")
                         else:
-                            attr = args[2]
-
-                            if len(args) < 4:
-                                print("** value missing **")
+                            # check whether the instance exits
+                            model_instance = storage.all()[key]
+                            if not model_instance:
+                                print("** no instance found **")
                             else:
-                                # check whether the instance exits
-                                model_instance = storage.all()[key]
-                                if not model_instance:
-                                     print("** no instance found **")
+                                # Check if the attribute exists
+                                if hasattr(model_instance, attr, arg[3]
+                                           .strip('""')):
+                                    # Get the attribute type from the class
+                                    attr_type = type(
+                                            getattr(model_instance,
+                                                    attr, arg[3].strip('""')))
                                 else:
-                                     # Get the attribute type from the class
-                                     attr_type = type(getattr(model_instance, attr, None))
-                                     # Cast the value ti the attribute type
-                                     casted_value = attr_type(args[3].strip('""'))
-                                     # update the attribute in the model instance
-                                     setattr(model_instance, attr, casted_value)
-                                     # save the changes
-                                     storage.save()
+                                    if arg[3].strip('""').isdigit():
+                                        attr_type = float
+                                    else:
+                                        attr_type = str
+                                    # Cast the value to the attribute type
+                                    casted_value = attr_type(
+                                            args[3].strip('""'))
+                                    # update the attr in the model instance
+                                    setattr(model_instance, attr, casted_value)
+                                    # save the changes
+                                    storage.save()
 
                 except KeyError:
-                        print("** no instance found **")
+                    print("** no instance\
+                                found **")
 
     def do_EOF(self, line):
         """Exit the console when encountering EOF."""
         return True
-    
+
     def do_help(self, arg: str) -> bool | None:
         """Shows available commands and usage.
 
@@ -162,11 +193,12 @@ class HBNBCommand(Cmd):
             bool or None: The result of the help command execution.
         """
         return super().do_help(arg)
-    
+
     def do_quit(self, arg):
         """Quit command to exit the program
         """
         exit()
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()

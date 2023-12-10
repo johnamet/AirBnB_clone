@@ -5,16 +5,6 @@ from datetime import datetime
 
 
 class BaseModel:
-    """The base model has common attributes and
-        methods for other classes
-
-    Attributes:
-        id (str): A unique identifier that is randomly generated using UUID.
-        created_at (datetime): The timestamp when the instance was created.
-        updated_at (datetime): The timestamp when the instance was last updated.
-
-    """
-
     def __init__(self, *args, **kwargs) -> None:
         """Initialize a new instance of the BaseModel class.
 
@@ -22,17 +12,17 @@ class BaseModel:
             kwargs (dict): Dictionary of attribute names and
                            values. (default is None)
         """
-        
-        """If it's a new instance, add a call to the method new(self) on storage"""
         from models import storage
 
         if kwargs:
             for key, value in kwargs.items():
                 if key == '__class__':
-                    continue # Skip '__class__' attribute
+                    continue  # Skip '__class__' attribute
                 if key in ['created_at', 'updated_at']:
-                    # Convert string to datetime object based on the known format
-                    setattr(self, key, datetime.fromisoformat(value))
+                    # Convert string to datetime object
+                    # based on the known format
+                    setattr(self, key,
+                            datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f'))
                 else:
                     setattr(self, key, value)
         else:
@@ -56,8 +46,8 @@ class BaseModel:
             keys/values of __dict__ of the instance
         """
         self.__dict__["__class__"] = self.__class__.__name__
-        
-         # Check if created_at is a datetime object before calling isoformat
+
+        # Check if created_at is a datetime object before calling isoformat
         if isinstance(self.created_at, datetime):
             self.__dict__["created_at"] = self.created_at.isoformat()
 
