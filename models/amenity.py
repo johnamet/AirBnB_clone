@@ -13,7 +13,7 @@ class Amenity(BaseModel):
         name (str): name of amenity (defaults to empty str)
     """
 
-    def __init__(self,name="", **kwargs):
+    def __init__(self, name="", **kwargs):
         super().__init__(self)
         self.name = name
 

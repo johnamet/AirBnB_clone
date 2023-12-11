@@ -22,8 +22,7 @@ class BaseModel:
                     # Convert string to datetime object
                     # based on the known format
                     setattr(self, key,
-                            datetime.fromisoformat(value)
-                            )   
+                            datetime.fromisoformat(value))
                 else:
                     setattr(self, key, value)
         else:

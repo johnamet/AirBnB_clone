@@ -68,10 +68,11 @@ class FileStorage:
                 if content:
                     serialized_objects = json.loads(content)
                     for key, value in serialized_objects.items():
-                        if value == None or len(key) == 0 or len(value) == 0:
+                        if value is None or len(key) == 0 or len(value) == 0:
                             pass
                         else:
                             cls = value["__class__"]
-                            self.__objects[key] = self.classes_dict[cls](**value)
+                            self.__objects[key] =
+                            self.classes_dict[cls](**value)
         except FileNotFoundError:
             pass
