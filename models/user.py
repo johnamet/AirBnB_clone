@@ -21,7 +21,7 @@ class User(BaseModel):
 
     def __init__(self, email=None, password=None,
                  first_name=None, last_name=None, **kwargs):
-        super().__init__(self)
+        super().__init__(**kwargs)
         self.email = email
         self.password = password
         self.first_name = first_name

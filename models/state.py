@@ -13,7 +13,7 @@ class State(BaseModel):
     """
 
     def __init__(self, name="", **kwargs):
-        super().__init__(self)
+        super().__init__(**kwargs)
         self.name = name
 
     def to_dict(self):

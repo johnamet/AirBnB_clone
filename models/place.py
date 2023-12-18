@@ -48,7 +48,7 @@ class Place(BaseModel):
                  description="", number_of_rooms=0, number_of_bathrooms=0,
                  max_guests=0, price_by_night=0, latitude=0.0,
                  longitude=0.0, amenity_ids=[], **kwargs):
-        super().__init__(self)
+        super().__init__(**kwargs)
         self.city_id = city_id
         self.user_id = user_id
         self.name = name
