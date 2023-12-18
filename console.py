@@ -5,7 +5,14 @@
 from cmd import Cmd
 from models.base_model import BaseModel
 from models import storage
+from models.user import User
+from models.city import City
+from models.amenity import Amenity
+from models.state import State
+from models.review import Review
+from models.place import Place
 import re
+
 
 class HBNBCommand(Cmd):
     """The console is to manage the
@@ -13,21 +20,21 @@ class HBNBCommand(Cmd):
     """
 
     prompt = "(hbnb) "
-    
+    classes_dict = {"BaseModel": BaseModel, "User": User,
+            "City": City, "Amenity": Amenity, "Place": Place,
+            "Review": Review, "State": State}
+
     def do_create(self, arg):
         """Creates a new instance of BaseModel and saves it.
 
         Usage: create <class name>
         Example: create BaseModel
         """
-        # a dictionary of classes
-        classes_dict = {"BaseModel": BaseModel}
-
         if not arg:
             print("** class name missing **")
         else:
             try:
-                model = classes_dict[arg]()
+                model = self.classes_dict[arg]()
                 model.save()
                 print("{}".format(model.id))
             except KeyError:
@@ -40,20 +47,17 @@ class HBNBCommand(Cmd):
         Usage: show <class name> <id>
         Example: show BaseModel 1234-5678
         """
-        # a dictionary of classes
-        classes_dict = {"BaseModel": BaseModel}
-
         args = arg.split(" ")
 
         if not arg:
             print("** class name missing **")
-        elif args[0] not in classes_dict:
+        elif args[0] not in self.classes_dict:
             print("** class doesn't exist **")
         elif len(args) < 2:
             print("** instance id missing **")
         else:
             id = args[1]
-            model = classes_dict[args[0]]
+            model = self.classes_dict[args[0]]
             key = "{}.{}".format(model.__name__, id)
             try:
                 model_instance = storage.all()[key]
@@ -67,20 +71,18 @@ class HBNBCommand(Cmd):
         Usage: destroy <class name> <id>
         Example: destroy BaseModel 1234-5678
         """
-        classes_dict = {"BaseModel": BaseModel}
-
         args = arg.split(" ")
 
         if not arg:
             print("** class name missing **")
-        elif args[0] not in classes_dict:
+        elif args[0] not in self.classes_dict:
             print("** class doesn't exist **")
         elif len(args) < 2:
             print("** instance id missing **")
         else:
             model = args[0]
             id = args[1]
-            model = classes_dict[model]
+            model = self.classes_dict[model]
             key = "{}.{}".format(model.__name__, id)
             try:
                 del storage.all()[key]
@@ -95,15 +97,16 @@ class HBNBCommand(Cmd):
         Usage: all [class name]
         Example: all BaseModel
         """
-        classes_dict = {"BaseModel": BaseModel}
         all_obj = storage.all()
         if not line:
             cls_list = [str(value) for _, value in all_obj.items()]
             print(cls_list)
         else:
-            if line in classes_dict:
-                cls_list = [str(value) if line in key else ''
-                            for key, value in all_obj.items()]
+            cls_list = []
+            if line in self.classes_dict:
+                for key, value in all_obj.items():
+                    if line in key:
+                        cls_list.append(str(value))
                 print(cls_list)
             else:
                 print("** class doesn't exist **")
@@ -115,8 +118,6 @@ class HBNBCommand(Cmd):
         Usage: update <class name> <id> <attribute name> "<attribute value>"
         Example: update BaseModel 1234-5678 name "John Doe"
         """        
-        # a dictionary of classes
-        classes_dict = {"BaseModel": BaseModel}
         pattern = r'("[^"]+"|\S+)'
         comps = re.findall(pattern, arg)
         args = [comp.strip('"') for comp in comps]
@@ -125,14 +126,14 @@ class HBNBCommand(Cmd):
         if not args:
             print("** class name missing **")
         # check whether the class exists
-        elif args[0] not in classes_dict:
+        elif args[0] not in self.classes_dict:
             print("** class doesn't exist **")
         # check whether the instance id is missing
         elif len(args) < 2:
             print("** instance id missing **")
         else:
             id = args[1]
-            model_class = classes_dict[args[0]]
+            model_class = self.classes_dict[args[0]]
             if not model_class:
                 print("** no instance found **")
             else:
@@ -152,8 +153,16 @@ class HBNBCommand(Cmd):
                                 if not model_instance:
                                      print("** no instance found **")
                                 else:
-                                     # Get the attribute type from the class
-                                     attr_type = type(getattr(model_instance, attr, None))
+                                     # Check if the attribute exists
+                                     if hasattr(model_instance, attr, arg[3].strip('""')):
+
+                                        # Get the attribute type from the class
+                                        attr_type = type(getattr(model_instance, attr, arg[3].strip('""')))
+                                     else:
+                                         if arg[3].strip('""').isdigit():
+                                            attr_type = float
+                                         else:
+                                            attr_type = str
                                      # Cast the value ti the attribute type
                                      casted_value = attr_type(args[3].strip('""'))
                                      # update the attribute in the model instance
