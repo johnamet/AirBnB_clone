@@ -4,7 +4,7 @@
 """
 import ast
 import re
-from cmd import Cmd
+import cmd 
 from io import StringIO
 from typing import IO, List
 
@@ -18,7 +18,7 @@ from models.state import State
 from models.user import User
 
 
-class HBNBCommand(Cmd):
+class HBNBCommand(cmd.Cmd):
     """The console is to manage the objects of the AirBnB clone project."""
 
     prompt = "(hbnb) "
