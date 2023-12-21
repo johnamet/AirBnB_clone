@@ -2,7 +2,7 @@ header {
 	background-color: #FFF;
 	height: 70px;
 	width: 100%;
-	border: 1px solid #CCCCCC;
+	border-bottom: 1px solid #CCCCCC;
 }
 
 .logo {
